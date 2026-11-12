@@ -42,6 +42,15 @@ posts = [
         "autor": perfil_autor,
         "tags": ["Python", "Listas"],
         "estado": "archivado"
+    },
+    {
+        # Post incompleto y con errores para probar la función de validación
+        "id": 4,
+        "titulo": "",  # Título vacío
+        "contenido": "",  # Contenido vacío
+        "autor": "Texto simple en vez de diccionario",  # Tipo incorrecto
+        "tags": "No es una lista",  # Tipo incorrecto
+        "estado": "estado_invalido"  # Estado no permitido
     }
 ]
 
@@ -90,8 +99,8 @@ def listar_posts(lista):
 def buscar_por_titulo(lista, termino):
     if not termino.strip():
         print("La busqueda no puede estar vacia.")
-        
-    
+        return  # Retorno solicitado por el profesor
+
     termino_minusculas = termino.lower()
     resultados = []
     
@@ -141,26 +150,32 @@ def validar_post(post):
         if clave not in post:
             return f"Error: Falta la clave obligatoria '{clave}'."
 
-    # Validar que el título no esté vacío
-    if not post["titulo"].strip():
-        return "Error: El título no puede estar vacío."
+    # Accesos seguros con .get()
+    titulo = post.get("titulo", "")
+    contenido = post.get("contenido", "")
+    autor = post.get("autor")
+    tags = post.get("tags")
+    estado = post.get("estado")
 
-    # Validar que el contenido no esté vacío
-    if not post["contenido"].strip():
-        return "Error: El contenido no puede estar vacío."
+    # Validar que el título no esté vacío y sea texto
+    if not isinstance(titulo, str) or not titulo.strip():
+        return "Error: El título no puede estar vacío y debe ser texto."
+
+    # Validar que el contenido no esté vacío y sea texto
+    if not isinstance(contenido, str) or not contenido.strip():
+        return "Error: El contenido no puede estar vacío y debe ser texto."
 
     # Validar que el autor sea un diccionario y tenga la clave "nombre"
-    autor = post["autor"]
     if not isinstance(autor, dict) or "nombre" not in autor:
         return "Error: La clave 'autor' debe ser un diccionario válido con la clave 'nombre'."
 
     # Validar que los tags sean una lista
-    if not isinstance(post["tags"], list):
+    if not isinstance(tags, list):
         return "Error: La clave 'tags' debe ser una lista."
 
     # Validar que el estado pertenezca a la tupla permitida
-    if post["estado"] not in estados_post:
-        return f"Error: El estado '{post['estado']}' no es válido. Debe ser uno de {estados_post}."
+    if estado not in estados_post:
+        return f"Error: El estado '{estado}' no es válido. Debe ser uno de {estados_post}."
 
     return True
 
